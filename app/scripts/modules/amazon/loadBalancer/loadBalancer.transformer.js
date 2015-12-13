@@ -49,9 +49,6 @@ module.exports = angular.module('spinnaker.aws.loadBalancer.transformer', [
 		}
 
 		function normalizeLoadBalancer(loadBalancer) {
-			loadBalancer.listeners.forEach(function (listener) {
-        listener.sslCertificateId = "arn:aws:iam::" + loadBalancer.account + ":server-certificate/" + listener.sslCertificateId;
-			});
 			loadBalancer.serverGroups.forEach(function (serverGroup) {
 				serverGroup.account = loadBalancer.account;
 				serverGroup.region = loadBalancer.region;
@@ -104,6 +101,9 @@ module.exports = angular.module('spinnaker.aws.loadBalancer.transformer', [
 				if (elb.listenerDescriptions) {
 					toEdit.listeners = elb.listenerDescriptions.map(function (description) {
 						var listener = description.listener;
+						if (listener.sslcertificateId) {
+							listener.sslcertificateId = listener.sslcertificateId.split("/")[1];
+						}
 						return {
 							internalProtocol: listener.instanceProtocol,
 							internalPort: listener.instancePort,
